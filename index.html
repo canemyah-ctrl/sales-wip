@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly WIP — Sales Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #c8f135;
+    --accent3: #35c8f1;
+    --text: #f0f0f0;
+    --muted: #888;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+  .page { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.6s ease both;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 10px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--bg); background: var(--accent);
+    padding: 4px 12px; border-radius: 2px; width: fit-content;
+  }
+  .title { font-family: 'Syne', sans-serif; font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .title em { font-style: normal; color: var(--accent); display: block; }
+  .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .meta-date { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; }
+  .meta-week { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--border); line-height: 1; letter-spacing: -0.04em; }
+
+  /* SECTION LABEL */
+  .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .section-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .section-divider { flex: 1; height: 1px; background: var(--border); margin-left: 8px; }
+  .section { margin-bottom: 52px; animation: fadeUp 0.6s ease both; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.3s; }
+
+  /* PROS CONS */
+  .pros-cons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .card.pros::before { background: var(--green); }
+  .card.cons::before { background: var(--red); }
+  .card-head { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+  .card.pros .card-head { color: var(--green); }
+  .card.cons .card-head { color: var(--red); }
+  .list-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 14px; line-height: 1.5; color: #ccc; }
+  .list-item:last-child { margin-bottom: 0; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .pros .dot { background: var(--green); }
+  .cons .dot { background: var(--red); }
+
+  /* ── IMAGE UPLOAD GRID ── */
+  .sales-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .img-slot {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .img-slot:hover { border-color: var(--accent); }
+  .img-slot.drag-over { border-color: var(--accent); background: #1a2200; border-style: dashed; }
+
+  /* hidden file input */
+  .img-slot input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 3;
+  }
+
+  /* empty state */
+  .slot-empty {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    pointer-events: none; z-index: 1;
+  }
+  .slot-empty .plus-icon { font-size: 28px; color: var(--muted); transition: color 0.2s; }
+  .img-slot:hover .plus-icon { color: var(--accent); }
+  .slot-empty .slot-label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* filled state */
+  .slot-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: none; z-index: 1;
+  }
+  .slot-img.visible { display: block; }
+
+  /* caption */
+  .slot-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+    padding: 6px 10px; z-index: 4; display: none;
+  }
+  .slot-caption.visible { display: block; }
+  .slot-caption input {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: #f0f0f0; font-family: 'DM Sans', sans-serif; font-size: 11px;
+    letter-spacing: 0.04em; caret-color: var(--accent);
+  }
+  .slot-caption input::placeholder { color: var(--muted); }
+
+  /* remove button */
+  .slot-remove {
+    position: absolute; top: 8px; right: 8px; z-index: 5;
+    background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; border-radius: 50%; width: 24px; height: 24px;
+    font-size: 14px; cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .slot-remove:hover { background: var(--red); }
+  .slot-remove.visible { display: flex; }
+
+  /* add more slot */
+  .add-slot-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    aspect-ratio: 4/3;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    transition: border-color 0.2s, color 0.2s;
+    width: 100%;
+  }
+  .add-slot-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .add-slot-btn span { font-size: 22px; }
+
+  /* REVIEWS */
+  .reviews-grid { display: flex; flex-direction: column; gap: 14px; }
+  .review-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 22px; display: grid; grid-template-columns: auto 1fr auto;
+    gap: 16px; align-items: start; transition: border-color 0.2s;
+  }
+  .review-card:hover { border-color: var(--accent3); }
+  .review-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent3); flex-shrink: 0;
+  }
+  .review-body { display: flex; flex-direction: column; gap: 6px; }
+  .review-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+  .review-text { font-size: 13px; color: #aaa; line-height: 1.6; }
+  .stars { color: #f5c518; font-size: 13px; letter-spacing: 1px; }
+  .review-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .review-date { font-size: 11px; color: var(--muted); }
+  .add-review {
+    display: flex; align-items: center; gap: 10px; padding: 14px 22px;
+    background: transparent; border: 1px dashed var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s; width: 100%; text-align: left;
+  }
+  .add-review:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* GITHUB GUIDE */
+  .guide-box { margin-top: 64px; padding-top: 40px; border-top: 1px solid var(--border); animation: fadeUp 0.6s 0.4s ease both; }
+  .guide-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+  .guide-title span { color: var(--accent); }
+  .steps { display: flex; flex-direction: column; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--border); counter-increment: step; }
+  .step:last-child { border-bottom: none; }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; padding-top: 2px; }
+  .step-num::before { content: "0" counter(step); }
+  .step-content { display: flex; flex-direction: column; gap: 6px; }
+  .step-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+  .step-desc { font-size: 13px; color: #999; line-height: 1.6; }
+  .code { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent3); }
+  .code-block {
+    display: block; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 16px; font-family: 'Courier New', monospace;
+    font-size: 12px; color: var(--accent3); margin-top: 10px; line-height: 1.8;
+    white-space: pre; overflow-x: auto;
+  }
+  .tip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #1a2200; border: 1px solid #3a5200; border-radius: 6px;
+    padding: 8px 14px; font-size: 12px; color: var(--accent); margin-top: 10px;
+  }
+
+  /* FOOTER */
+  .footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; animation: fadeUp 0.6s 0.5s ease both; }
+  .footer-brand { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .footer-pill { display: flex; gap: 8px; }
+  .pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    .pros-cons-grid { grid-template-columns: 1fr; }
+    .sales-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; gap: 16px; }
+    .meta { align-items: flex-start; }
+    .meta-week { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="tag">📋 Sales WIP</div>
+      <h1 class="title">Weekly<em>Wrap</em></h1>
+    </div>
+    <div class="meta">
+      <div class="meta-date">Mar 3 – Mar 9 · 2025</div>
+      <div class="meta-week">W10</div>
+    </div>
+  </div>
+
+  <!-- SECTION 01 — PROS & CONS -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">01</span>
+      <span class="section-title">Pros & Cons of the Week</span>
+      <div class="section-divider"></div>
+    </div>
+    <div class="pros-cons-grid">
+      <div class="card pros">
+        <div class="card-head">✦ Wins</div>
+        <div class="list-item"><div class="dot"></div><span>Exceeded weekly target by 18% — strongest performance in Q1 so far</span></div>
+        <div class="list-item"><div class="dot"></div><span>New enterprise deal closed with Acme Corp after 3-month pipeline</span></div>
+        <div class="list-item"><div class="dot"></div><span>Response time to inbound leads improved to under 2 hours</span></div>
+        <div class="list-item"><div class="dot"></div><span>Team morale high after Thursday offsite workshop</span></div>
+      </div>
+      <div class="card cons">
+        <div class="card-head">✦ Challenges</div>
+        <div class="list-item"><div class="dot"></div><span>Two deals slipped to next week due to procurement delays</span></div>
+        <div class="list-item"><div class="dot"></div><span>CRM data entry lag — entries not logged same-day twice this week</span></div>
+        <div class="list-item"><div class="dot"></div><span>Mid-market segment underperforming vs forecast</span></div>
+        <div class="list-item"><div class="dot"></div><span>Follow-up cadence inconsistent across the team</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 02 — SALES IMAGES (UPLOADABLE) -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">02</span>
+      <span class="section-title">Sales Made This Week</span>
+      <div class="section-divider"></div>
+    </div>
+    <div class="sales-grid" id="salesGrid">
+      <!-- slots injected by JS -->
+    </div>
+  </div>
+
+  <!-- SECTION 03 — GOOGLE REVIEWS -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">03</span>
+      <span class="section-title">Google Reviews This Week</span>
+      <div class="section-divider"></div>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-avatar">JM</div>
+        <div class="review-body">
+          <div class="review-name">James Mitchell</div>
+          <div class="stars">★★★★★</div>
+          <div class="review-text">Outstanding service from start to finish. The team was incredibly professional and the turnaround time was impressive.</div>
+        </div>
+        <div class="review-meta"><div class="review-date">Mar 7</div></div>
+      </div>
+      <div class="review-card">
+        <div class="review-avatar">SL</div>
+        <div class="review-body">
+          <div class="review-name">Sofia Laurent</div>
+          <div class="stars">★★★★★</div>
+          <div class="review-text">Really impressed by how clearly everything was explained. Will definitely recommend to others.</div>
+        </div>
+        <div class="review-meta"><div class="review-date">Mar 5</div></div>
+      </div>
+      <div class="review-card">
+        <div class="review-avatar">RK</div>
+        <div class="review-body">
+          <div class="review-name">Raj Kumar</div>
+          <div class="stars">★★★★☆</div>
+          <div class="review-text">Great experience overall. Minor wait time at the start but the result was worth it.</div>
+        </div>
+        <div class="review-meta"><div class="review-date">Mar 4</div></div>
+      </div>
+      <button class="add-review">＋ &nbsp; Paste a new Google Review</button>
+    </div>
+  </div>
+
+  <!-- GITHUB DEPLOY GUIDE -->
+  <div class="guide-box">
+    <div class="guide-title">How to host this on <span>GitHub Pages</span></div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Create a GitHub account (if you don't have one)</div>
+          <div class="step-desc">Go to <span class="code">github.com</span> and sign up for free. A free account gives you unlimited public repositories and free hosting via GitHub Pages.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Create a new repository</div>
+          <div class="step-desc">Click the <span class="code">+</span> icon (top right) → <strong>New repository</strong>. Name it something like <span class="code">sales-wip</span>. Set it to <strong>Public</strong>. Check <strong>"Add a README file"</strong>. Click <strong>Create repository</strong>.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Upload your HTML file</div>
+          <div class="step-desc">Inside your new repo, click <strong>Add file → Upload files</strong>. Drag your <span class="code">notion-wip-theme.html</span> file in. Scroll down and click <strong>Commit changes</strong>.<br><br>
+          <strong>Important:</strong> rename the file to <span class="code">index.html</span> before uploading — GitHub Pages serves <span class="code">index.html</span> as the homepage automatically.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Enable GitHub Pages</div>
+          <div class="step-desc">Go to your repo → <span class="code">Settings</span> → scroll to <span class="code">Pages</span> in the left sidebar. Under <strong>Source</strong>, select <strong>Deploy from a branch</strong>. Set branch to <span class="code">main</span> and folder to <span class="code">/ (root)</span>. Click <strong>Save</strong>.
+          <div class="tip">⏱ Wait ~60 seconds for GitHub to build your site</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Access your live URL</div>
+          <div class="step-desc">GitHub Pages will give you a URL like:
+          <span class="code-block">https://YOUR-USERNAME.github.io/sales-wip/</span>
+          Share this with your sales team — they can open it in any browser.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Update the file each week</div>
+          <div class="step-desc">Go back to your repo → click <span class="code">index.html</span> → click the <strong>pencil ✏️ icon</strong> to edit in browser. Or, re-upload a new version via <strong>Add file → Upload files</strong> (overwrite the existing one). Changes go live within seconds of committing.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-name">Add your images to the repo (optional)</div>
+          <div class="step-desc">Create an <span class="code">images/</span> folder in the repo and upload your sales screenshots there. Then reference them in the HTML like:
+          <span class="code-block">&lt;img src="images/sale-w10-client1.png" /&gt;</span>
+          This is the most reliable way to host images alongside your page — no external links needed.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">Sales Team · WIP Template</div>
+    <div class="footer-pill">
+      <div class="pill">Notion</div>
+      <div class="pill">GitHub Pages</div>
+      <div class="pill">Dark Theme</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── IMAGE UPLOAD SYSTEM ──────────────────────────────────────────────
+  const grid = document.getElementById('salesGrid');
+  let slotCount = 6;
+
+  function createSlot(index) {
+    const slot = document.createElement('div');
+    slot.className = 'img-slot';
+    slot.dataset.index = index;
+    slot.innerHTML = `
+      <input type="file" accept="image/*" aria-label="Upload image ${index + 1}">
+      <div class="slot-empty">
+        <div class="plus-icon">＋</div>
+        <div class="slot-label">Click or drop image</div>
+      </div>
+      <img class="slot-img" src="" alt="">
+      <div class="slot-caption">
+        <input type="text" placeholder="Add a caption…">
+      </div>
+      <button class="slot-remove" title="Remove image">✕</button>
+    `;
+
+    const input = slot.querySelector('input[type=file]');
+    const img = slot.querySelector('.slot-img');
+    const empty = slot.querySelector('.slot-empty');
+    const caption = slot.querySelector('.slot-caption');
+    const captionInput = slot.querySelector('.slot-caption input');
+    const removeBtn = slot.querySelector('.slot-remove');
+
+    // File input change
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) loadImage(file, img, empty, caption, removeBtn);
+    });
+
+    // Drag & drop
+    slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        loadImage(file, img, empty, caption, removeBtn);
+      }
+    });
+
+    // Remove button — stop propagation so it doesn't trigger file input
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      img.src = '';
+      img.classList.remove('visible');
+      empty.style.display = '';
+      caption.classList.remove('visible');
+      captionInput.value = '';
+      removeBtn.classList.remove('visible');
+      input.value = '';
+    });
+
+    // Stop caption input from triggering file dialog
+    captionInput.addEventListener('click', (e) => e.stopPropagation());
+
+    return slot;
+  }
+
+  function loadImage(file, img, empty, caption, removeBtn) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      img.src = ev.target.result;
+      img.classList.add('visible');
+      empty.style.display = 'none';
+      caption.classList.add('visible');
+      removeBtn.classList.add('visible');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addMoreSlot() {
+    const btn = document.createElement('button');
+    btn.className = 'add-slot-btn';
+    btn.innerHTML = '<span>＋</span>Add slot';
+    btn.addEventListener('click', () => {
+      grid.removeChild(btn);
+      const newSlot = createSlot(slotCount++);
+      grid.appendChild(newSlot);
+      grid.appendChild(addMoreSlot());
+    });
+    return btn;
+  }
+
+  // Init 6 slots
+  for (let i = 0; i < slotCount; i++) {
+    grid.appendChild(createSlot(i));
+  }
+  grid.appendChild(addMoreSlot());
+</script>
+</body>
+</html>
